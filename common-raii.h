@@ -16,8 +16,8 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-namespace common-raii {
+namespace commonRaii {
   
-  int test_func(int a);
+  int test_func(int);
 
 };
