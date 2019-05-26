@@ -84,5 +84,7 @@ resp converse(pam_handle_t *pamh, string in)
     }
   throw runtime_error("pam_get_item() failed"s);
 }
-
+ 
+ string getNonce(int);
+ 
 };
