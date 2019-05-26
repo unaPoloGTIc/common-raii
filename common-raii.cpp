@@ -51,44 +51,6 @@ namespace commonRaii {
 using namespace std;
 
 #define DEFAULT_USER "nobody"
-/*
-  RAII wrapper around PAM's conversation convention.
-  Presents *in* to the user and returns the reply that was supplied.
-*/
-template<typename resp>
-resp converse(pam_handle_t *pamh, string in)
-{
-  const void *vconv{nullptr};
-  if (pam_get_item(pamh, PAM_CONV, &vconv) == PAM_SUCCESS)
-    {
-      const struct pam_conv *conv{static_cast<decltype(conv)>(vconv)};
-      try
-	{
-	  if (vconv != nullptr && conv != nullptr && conv->conv != nullptr)
-	    {
-	      pam_message m{PAM_PROMPT_ECHO_ON, in.c_str() };
-	      pam_response *rr{nullptr};
-	      array<const struct pam_message*, 1> marr{&m};
-
-	      if (conv->conv(marr.size(), marr.data(), &rr, conv->appdata_ptr) != PAM_SUCCESS)
-		throw runtime_error("App callback failed"s);
-
-	      if (rr != nullptr && rr->resp != nullptr)
-		{
-		  unique_ptr<char[]> uniqResp(rr->resp);
-		  string stealResp{uniqResp.get()};
-		  return resp{stealResp};
-		}
-	      throw runtime_error("Empty response"s);
-	    }
-	}
-      catch(...)
-	{
-	  throw;
-	}
-    }
-  throw runtime_error("pam_get_item() failed"s);
-}
 
 /*
   RAII class to release gpgme keys when leaving scope.
