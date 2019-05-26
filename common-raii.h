@@ -84,85 +84,97 @@ resp converse(pam_handle_t *pamh, string in)
     }
   throw runtime_error("pam_get_item() failed"s);
 }
+/*
+  RAII class to release gpgme keys when leaving scope.
+*/
+class keyRaii{
+private:
+  gpgme_key_t key;
+
+public:
+  keyRaii():key{nullptr}{}
+  ~keyRaii()
+  {
+    if (key)
+      gpgme_key_release (key);
+  }
+
+  gpgme_key_t &get()
+  {
+    return key;
+  }
+  
+};
+
+/*
+  RAII class to release gpgme data when leaving scope.
+*/
+class gpgme_data_raii{
+private:
+  gpgme_data_t data = nullptr;
+  gpgme_error_t err;
+public:
+  gpgme_data_raii(const string& str)
+  {
+    if (auto err{gpgme_data_new_from_mem(&data,str.c_str(), str.length(), 1)}; err != GPG_ERR_NO_ERROR)
+      throw runtime_error("Can't init gpgme data from mem "s + string{gpgme_strerror(err)});
+  }
+  gpgme_data_raii()
+  {
+    if (auto err{gpgme_data_new(&data)}; err != GPG_ERR_NO_ERROR)
+      throw runtime_error("Can't init gpgme empty data "s + string{gpgme_strerror(err)});
+  }
+
+  gpgme_data_t& get()
+  {
+    return data;
+  }
+
+  ~gpgme_data_raii(){
+    if(data)
+      gpgme_data_release (data);
+  }
+};
+
+/*
+  RAII class to release gpgme ctx when leaving scope.
+*/
+class gpgme_ctx_raii{
+private:
+  gpgme_ctx_t ctx;
+  static const gpgme_protocol_t proto{GPGME_PROTOCOL_OpenPGP};
+public:
+  gpgme_ctx_raii(string gpgHome)
+  {
+    gpgme_check_version (NULL);
+    if (auto err{gpgme_engine_check_version(proto)}; err != GPG_ERR_NO_ERROR)
+      throw runtime_error("Can't init libgpgme "s + string{gpgme_strerror(err)});
+
+    if (auto err{gpgme_new(&ctx)}; err != GPG_ERR_NO_ERROR)
+      throw runtime_error("Can't create libgpgme context "s + string{gpgme_strerror(err)});
+    if (auto err{gpgme_ctx_set_engine_info(ctx, proto, NULL, gpgHome.c_str())}; err != GPG_ERR_NO_ERROR)
+      throw runtime_error("Can't set libgpgme engine info "s +  string{gpgme_strerror(err)});
+    if (auto err{gpgme_set_protocol(ctx, proto)}; err != GPG_ERR_NO_ERROR)
+      throw runtime_error("Can't set libgpgme protocol "s + string{gpgme_strerror(err)});
+
+    gpgme_set_armor (ctx, 1);
+  }
+
+  gpgme_ctx_t& get()
+  {
+    return ctx;
+  }
+
+  ~gpgme_ctx_raii()
+  {
+    if(ctx)
+      gpgme_release(ctx);
+  }
+};
+
  
  string getNonce(int);
 
-/*
-  RAII wrapper around GPGME encryption operations.
-*/
-class encrypter {
-private:
-  string plain, gpgHome;
-  gpgme_decrypt_flags_t flags = static_cast<gpgme_decrypt_flags_t>(0);
-
-  /*
-    RAII helper to encrypt ro the public key of *recp*, optionally signing as *sender*
-  */
-  string encPub(string recp, bool trust = false, bool sign = true, string sender = ""s)
-  {
-    gpgme_ctx_raii ctx(gpgHome);
-    gpgme_data_raii in{plain};
-    gpgme_data_raii out{};
-
-    string recpFormatted{"--\n "s + recp + " \n"s};
-    gpgme_encrypt_flags_t params{trust?GPGME_ENCRYPT_ALWAYS_TRUST:static_cast<gpgme_encrypt_flags_t>(0)};
-    if (sign)
-      {
-	if (auto err{gpgme_op_keylist_start (ctx.get(), sender.c_str(), 0)}; err != GPG_ERR_NO_ERROR)
-	  throw runtime_error("gpgme_op_keylist_start() failed"s + string{gpgme_strerror(err)});
-	keyRaii key;
-	if (auto err{gpgme_op_keylist_next (ctx.get(), &key.get())}; err != GPG_ERR_NO_ERROR)
-	  throw runtime_error("gpgme_op_keylist_next() failed "s + string{gpgme_strerror(err)});
-	if (auto err{gpgme_op_keylist_end(ctx.get())}; err != GPG_ERR_NO_ERROR)
-	  throw runtime_error("gpgme_op_keylist_end() failed "s + string{gpgme_strerror(err)});
-	if (auto err{gpgme_signers_add (ctx.get(), key.get())}; err != GPG_ERR_NO_ERROR)
-	  throw runtime_error("Can't add signer "s + sender + " " + string{gpgme_strerror(err)});
-	if (auto err{gpgme_op_encrypt_sign_ext(ctx.get(),
-					       NULL,
-					       recpFormatted.c_str(),
-					       params,
-					       in.get(),
-					       out.get())}; err != GPG_ERR_NO_ERROR)
-	  {
-	    throw runtime_error("Can't encrypt/sign with keys "s + recp + ", " + sender + " : " + string{gpgme_strerror(err)});
-	  }
-      }
-    else
-      {
-	if (auto err{gpgme_op_encrypt_ext(ctx.get(),
-					  NULL,
-					  recpFormatted.c_str(),
-					  params,
-					  in.get(),
-					  out.get())}; err != GPG_ERR_NO_ERROR)
-	  throw runtime_error("Can't encrypt to "s + recp + " "s +  string{gpgme_strerror(err)});
-      }
-
-    constexpr int buffsize{500};
-    char buf[buffsize + 1] = "";
-    int ret = gpgme_data_seek (out.get(), 0, SEEK_SET);
-    string s{};
-    while ((ret = gpgme_data_read (out.get(), buf, buffsize)) > 0)
-      {
-	buf[ret] = '\0';
-	s += string{buf};
-      }
-    return s;
-  }
-
-public:
-
-  /*
-    RAII wrapper around a gpgme engine
-  */
-  encrypter(string s, string gpghome):plain{s},gpgHome{gpghome}
-  {}
-
-  string ciphertext(string recp, bool trust = false, bool sign = true, string sender = "")
-  {
-    return encPub(recp, trust, sign, sender);
-  }
-};
 
  
 };
