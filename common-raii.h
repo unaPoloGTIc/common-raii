@@ -174,7 +174,81 @@ public:
 
  
  string getNonce(int);
+class encrypter {
+private:
+  string plain, gpgHome;
+  gpgme_decrypt_flags_t flags = static_cast<gpgme_decrypt_flags_t>(0);
+*/
+  /*
+    RAII helper to encrypt ro the public key of *recp*, optionally signing as *sender*
+  */
 
+  string encPub(string recp, bool trust = false, bool sign = true, string sender = ""s)
+  {
+    gpgme_ctx_raii ctx(gpgHome);
+    gpgme_data_raii in{plain};
+    gpgme_data_raii out{};
+
+    string recpFormatted{"--\n "s + recp + " \n"s};
+    gpgme_encrypt_flags_t params{trust?GPGME_ENCRYPT_ALWAYS_TRUST:static_cast<gpgme_encrypt_flags_t>(0)};
+    if (sign)
+      {
+	if (auto err{gpgme_op_keylist_start (ctx.get(), sender.c_str(), 0)}; err != GPG_ERR_NO_ERROR)
+	  throw runtime_error("gpgme_op_keylist_start() failed"s + string{gpgme_strerror(err)});
+	keyRaii key;
+	if (auto err{gpgme_op_keylist_next (ctx.get(), &key.get())}; err != GPG_ERR_NO_ERROR)
+	  throw runtime_error("gpgme_op_keylist_next() failed "s + string{gpgme_strerror(err)});
+	if (auto err{gpgme_op_keylist_end(ctx.get())}; err != GPG_ERR_NO_ERROR)
+	  throw runtime_error("gpgme_op_keylist_end() failed "s + string{gpgme_strerror(err)});
+	if (auto err{gpgme_signers_add (ctx.get(), key.get())}; err != GPG_ERR_NO_ERROR)
+	  throw runtime_error("Can't add signer "s + sender + " " + string{gpgme_strerror(err)});
+	if (auto err{gpgme_op_encrypt_sign_ext(ctx.get(),
+					       NULL,
+					       recpFormatted.c_str(),
+					       params,
+					       in.get(),
+					       out.get())}; err != GPG_ERR_NO_ERROR)
+	  {
+	    throw runtime_error("Can't encrypt/sign with keys "s + recp + ", " + sender + " : " + string{gpgme_strerror(err)});
+	  }
+      }
+    else
+      {
+	if (auto err{gpgme_op_encrypt_ext(ctx.get(),
+					  NULL,
+					  recpFormatted.c_str(),
+					  params,
+					  in.get(),
+					  out.get())}; err != GPG_ERR_NO_ERROR)
+	  throw runtime_error("Can't encrypt to "s + recp + " "s +  string{gpgme_strerror(err)});
+      }
+
+    constexpr int buffsize{500};
+    char buf[buffsize + 1] = "";
+    int ret = gpgme_data_seek (out.get(), 0, SEEK_SET);
+    string s{};
+    while ((ret = gpgme_data_read (out.get(), buf, buffsize)) > 0)
+      {
+	buf[ret] = '\0';
+	s += string{buf};
+      }
+    return s;
+  }
+
+public:
+
+  /*
+    RAII wrapper around a gpgme engine
+  */
+
+  encrypter(string s, string gpghome):plain{s},gpgHome{gpghome}
+  {}
+
+  string ciphertext(string recp, bool trust = false, bool sign = true, string sender = "")
+  {
+    return encPub(recp, trust, sign, sender);
+  }
+};
 
 /*
   Helper class to get challenges.
