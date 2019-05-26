@@ -86,5 +86,5 @@ resp converse(pam_handle_t *pamh, string in)
 }
  
  string getNonce(int);
- 
+ class encrypter;
 };
