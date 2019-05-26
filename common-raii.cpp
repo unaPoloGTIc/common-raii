@@ -364,20 +364,21 @@ public:
   }
 };
 
-string globalChallenge{};
+  //string globalChallenge{};
 
 /*
   wrapper around libcppgenqr to get a qr representation of a string
 */
+  /*
 string getQR()
 {
   const qrcodegen::QrCode qr = qrcodegen::QrCode::encodeText(globalChallenge.c_str(), qrcodegen::QrCode::Ecc::QUARTILE);//TODO: in order to use HIGH, split the challenge into 10556 bits pieces or risk 'qrcodegen::data_too_long' exception
   return qr.toSvgString(1);
 }
-
+  */
 //globals, carefull.
-string globalUser, globalPass;
-bool globalAuth;
+//string globalUser, globalPass;
+//bool globalAuth;
 
 //RAII class to hold a MHD_response
 class mhdRespRaii {
@@ -405,6 +406,7 @@ public:
   called by libmicrohttpd
   serve a QR image over http/s and optionally authenticate the requester.
 */
+  /*
 static int
 answer_to_connection (void *cls, struct MHD_Connection *connection,
 		      const char *url, const char *method,
@@ -461,10 +463,11 @@ answer_to_connection (void *cls, struct MHD_Connection *connection,
   ret = MHD_queue_response (connection, MHD_HTTP_OK, response.get());
   return ret;
 }
-
+  */
 /*
   helper to make sense of the QR parameter in the config
 */
+   /*
 auto handleAuthTlsParams(string webQr)
 {
   bool webQrFlag{(webQr=="webQrAuthTls")||//TODO: refactor strings
@@ -478,10 +481,11 @@ auto handleAuthTlsParams(string webQr)
 
   return make_tuple(webQrFlag, tlsFlag);
 }
-
+   */
 /*
   RAII class to hold a webserver to serve QR codes
 */
+    /*
 class webServerRaii {
 private:
   struct MHD_Daemon * d{nullptr};
@@ -541,5 +545,5 @@ public:
       }
   }
 };
- 
+    */
 };
