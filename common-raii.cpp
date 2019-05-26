@@ -198,6 +198,7 @@ string getQR()
 //bool globalAuth;
 
 //RAII class to hold a MHD_response
+   /*
 class mhdRespRaii {
 private:
   struct MHD_Response *response;
@@ -218,7 +219,7 @@ public:
     return response;
   }
 };
-
+   */
 /*
   called by libmicrohttpd
   serve a QR image over http/s and optionally authenticate the requester.

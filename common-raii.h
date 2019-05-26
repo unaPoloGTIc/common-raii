@@ -325,5 +325,24 @@ public:
   }
 };
  */
- 
+ class mhdRespRaii {
+private:
+  struct MHD_Response *response;
+public:
+  mhdRespRaii(string page)
+  {
+    response = MHD_create_response_from_buffer (page.length(),
+						(void *)(page.c_str()),
+						MHD_RESPMEM_MUST_COPY);
+  }
+  ~mhdRespRaii()
+  {
+    if (response)
+      MHD_destroy_response (response);
+  }
+  auto get()
+  {
+    return response;
+  }
+};
 };
