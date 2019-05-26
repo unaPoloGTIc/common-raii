@@ -39,7 +39,7 @@ extern "C" {
 //#include <chrono>
 //#include <map>
 #include <future>
-#include <qrcodegen/QrCode.hpp>
+//#include <qrcodegen/QrCode.hpp>
 //#include <boost/algorithm/string.hpp>
 
 namespace commonRaii {
