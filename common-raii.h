@@ -18,6 +18,7 @@
 
 namespace commonRaii {
   
-  int test_func(int);
+template<typename resp>
+  resp converse(pam_handle_t *, string);
 
 };
