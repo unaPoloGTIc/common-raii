@@ -56,6 +56,7 @@ using namespace std;
 /*
   returns a (hopefully) uniformlly random alphanumeric (lower+uppercase) string of length *len*
 */
+  /*
 string getNonce(int len = 10)
 {
   static string chars{"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"s};
@@ -70,7 +71,7 @@ string getNonce(int len = 10)
     ret.push_back(chars[d(g)]);
   return ret;
 }
-
+  */
 /*
   helper to parse a config line into parameters
 */
