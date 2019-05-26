@@ -145,6 +145,7 @@ public:
 /*
   RAII class to temporarilly drop privilleges using setegid,seteuid
 */
+  /*
 class privDropper{
 private:
   uid_t origUid;
@@ -177,8 +178,8 @@ public:
 	  }
       }
   }
-};
-
+}; 
+  */
   //string globalChallenge{};
 
 /*
