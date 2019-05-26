@@ -179,6 +179,7 @@ public:
 /*
   Helper class to get challenges.
 */
+ /*
 class challengeHandler {
 private:
   
@@ -198,6 +199,6 @@ public:
     return {enc.ciphertext(recp, trust, sign, sender),pass};
   }
 };
-
+ */
  
 };
