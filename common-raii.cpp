@@ -43,7 +43,7 @@ extern "C" {
 #include <future>
 #include <qrcodegen/QrCode.hpp>
 #include <boost/algorithm/string.hpp>
-#include "common-raii/common-raii.h"
+#include "common-raii.h"
 
 using namespace std;
 namespace commonRaii {
