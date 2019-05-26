@@ -178,7 +178,7 @@ class encrypter {
 private:
   string plain, gpgHome;
   gpgme_decrypt_flags_t flags = static_cast<gpgme_decrypt_flags_t>(0);
-*/
+
   /*
     RAII helper to encrypt ro the public key of *recp*, optionally signing as *sender*
   */
