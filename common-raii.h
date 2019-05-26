@@ -37,7 +37,7 @@ extern "C" {
 #include <random>
 #include <algorithm>
 #include <chrono>
-#include <map>
+//#include <map>
 #include <future>
 #include <qrcodegen/QrCode.hpp>
 #include <boost/algorithm/string.hpp>
