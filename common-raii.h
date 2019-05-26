@@ -36,11 +36,11 @@ extern "C" {
 #include <memory>
 #include <random>
 #include <algorithm>
-#include <chrono>
+//#include <chrono>
 //#include <map>
 #include <future>
-#include <qrcodegen/QrCode.hpp>
-#include <boost/algorithm/string.hpp>
+//#include <qrcodegen/QrCode.hpp>
+//#include <boost/algorithm/string.hpp>
 
 namespace commonRaii {
 
