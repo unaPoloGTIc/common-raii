@@ -42,6 +42,8 @@ extern "C" {
 #include <qrcodegen/QrCode.hpp>
 #include <boost/algorithm/string.hpp>
 
+using namespace std;
+
 namespace commonRaii {
   
 template<typename resp>
