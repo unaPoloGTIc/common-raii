@@ -15,6 +15,9 @@
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+#ifndef CMMNRAII_H
+#define CMMNRAII_H
+
 extern "C" {
 #include <security/pam_modules.h>
 #include <security/pam_appl.h>
@@ -346,3 +349,4 @@ public:
   }
 };
 }
+#endif
