@@ -74,6 +74,7 @@ string getNonce(int len = 10)
 /*
   helper to parse a config line into parameters
 */
+  /*
 class userRecord {
 private:
   string trustStr;
@@ -102,10 +103,11 @@ public:
     return make_tuple(encryptTo, trustFlag, signStr, signFlag, webQr, key, pem);
   }
 };
-
+  */
 /*
   helper to parse a config file
 */
+  /*
 class userDb {
 private:
   userRecord rec;
@@ -139,7 +141,7 @@ public:
     return rec.get();
   }
 };
-
+  */
 /*
   RAII class to temporarilly drop privilleges using setegid,seteuid
 */
