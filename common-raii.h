@@ -36,12 +36,12 @@ extern "C" {
 #include <array>
 #include <string>
 //#include <sstream>
-#include <memory>
+//#include <memory>
 #include <random>
-#include <algorithm>
+//#include <algorithm>
 //#include <chrono>
 //#include <map>
-#include <future>
+//#include <future>
 //#include <qrcodegen/QrCode.hpp>
 //#include <boost/algorithm/string.hpp>
 
