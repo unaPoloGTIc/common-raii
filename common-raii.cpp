@@ -45,10 +45,12 @@ extern "C" {
 #include <boost/algorithm/string.hpp>
 #include "common-raii.h"
 
-using namespace std;
-namespace commonRaii {
-#define DEFAULT_USER "nobody"
 
+namespace commonRaii {
+
+using namespace std;
+
+#define DEFAULT_USER "nobody"
 /*
   RAII wrapper around PAM's conversation convention.
   Presents *in* to the user and returns the reply that was supplied.
