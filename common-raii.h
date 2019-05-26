@@ -23,11 +23,11 @@ extern "C" {
 #include <security/pam_appl.h>
 #include <security/pam_ext.h>
 #include <gpgme.h>
-#include <pwd.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <pthread.h>
-#include <syslog.h>
+  //#include <pwd.h>
+  //#include <unistd.h>
+  //#include <sys/types.h>
+  //#include <pthread.h>
+  //#include <syslog.h>
 #include <microhttpd.h>
 }
 
