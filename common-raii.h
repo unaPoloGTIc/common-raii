@@ -296,30 +296,6 @@ public:
   }
 }; 
  
-/*
-  Helper class to get challenges.
-*/
- /*
-class challengeHandler {
-private:
-  
-  string nonce(int len = 10)
-  {
-    return getNonce(len);
-  }
-
-public:
-  challengeHandler(){}
-
-  pair<string, string> getChallenge(string gpgHome, string recp, bool trust=false, bool sign=true, string sender="")
-  {
-    auto pass{nonce()};
-    auto plaintext{pass};
-    encrypter enc{plaintext, gpgHome};
-    return {enc.ciphertext(recp, trust, sign, sender),pass};
-  }
-};
- */
  class mhdRespRaii {
 private:
   struct MHD_Response *response;
