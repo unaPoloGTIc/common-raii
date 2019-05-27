@@ -31,19 +31,11 @@ extern "C" {
 #include <microhttpd.h>
 }
 
-//#include <iostream>
-//#include <fstream>
 #include <array>
 #include <string>
-//#include <sstream>
 #include <memory>
 #include <random>
 #include <algorithm>
-//#include <chrono>
-//#include <map>
-//#include <future>
-//#include <qrcodegen/QrCode.hpp>
-//#include <boost/algorithm/string.hpp>
 
 namespace commonRaii {
 
