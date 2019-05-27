@@ -37,7 +37,7 @@ extern "C" {
 #include <random>
 #include <algorithm>
 
-namespace commonRaii {
+namespace commonRaii { //TODO: add valgrind tests for all raii classes
 
   using namespace std;
  
