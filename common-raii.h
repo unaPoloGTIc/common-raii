@@ -40,7 +40,9 @@ extern "C" {
 namespace commonRaii {
 
 using namespace std;
-  
+ 
+#define DEFAULT_USER "nobody"
+
 /*
   RAII wrapper around PAM's conversation convention.
   Presents *in* to the user and returns the reply that was supplied.
@@ -87,18 +89,9 @@ private:
   gpgme_key_t key;
 
 public:
-  keyRaii():key{nullptr}{}
-  ~keyRaii()
-  {
-    if (key)
-      gpgme_key_release (key);
-  }
-
-  gpgme_key_t &get()
-  {
-    return key;
-  }
-  
+  keyRaii();
+  ~keyRaii();
+  gpgme_key_t &get();  
 };
 
 /*

@@ -23,7 +23,18 @@ namespace commonRaii {
 
 using namespace std;
 
-#define DEFAULT_USER "nobody"
+  //#define DEFAULT_USER "nobody"
 
+  keyRaii::keyRaii():key{nullptr}{}
+  keyRaii::~keyRaii()
+  {
+    if (key)
+      gpgme_key_release (key);
+  }
 
+  keyRaii::gpgme_key_t &get()
+  {
+    return key;
+  }
+  
 }
