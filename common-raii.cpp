@@ -32,7 +32,7 @@ using namespace std;
       gpgme_key_release (key);
   }
 
-  keyRaii::gpgme_key_t &get()
+  gpgme_key_t &keyRaii::get()
   {
     return key;
   }
