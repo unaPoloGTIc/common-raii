@@ -44,7 +44,7 @@ string converse(pam_handle_t *pamh, string in)
 		{
 		  unique_ptr<char[]> uniqResp(rr->resp);
 		  string stealResp{uniqResp.get()};
-		  return resp{stealResp};
+		  return string{stealResp};
 		}
 	      throw runtime_error("Empty response"s);
 	    }
