@@ -160,22 +160,8 @@ public:
   }
 };
 
- string getNonce(int len = 10)
-{
-  static string chars{"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"s};
-  auto ret{""s};
-  random_device rd{};
-  mt19937 g{rd()};
-  uniform_int_distribution<> d(0, chars.size()-1);
-  
-  shuffle(chars.begin(), chars.end(), g);
-  
-  for (int i=0; i < len; i++)
-    ret.push_back(chars[d(g)]);
-  return ret;
-}
-
-
+ string getNonce(int);
+   
 class encrypter {
 private:
   string plain, gpgHome;
