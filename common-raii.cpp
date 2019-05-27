@@ -16,7 +16,7 @@
   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-
+/*
 extern "C" {
 #include <security/pam_modules.h>
 #include <security/pam_appl.h>
@@ -43,6 +43,7 @@ extern "C" {
 #include <future>
 #include <qrcodegen/QrCode.hpp>
 #include <boost/algorithm/string.hpp>
+*/
 #include "common-raii.h"
 
 
