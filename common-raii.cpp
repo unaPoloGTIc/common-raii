@@ -158,4 +158,31 @@ using namespace std;
       }
     return s;
   }
+
+  privDropper::privDropper(pam_handle_t *pam, struct passwd *p):pamh{pam},origUid{geteuid()}, origGid{getegid()}, dropped{false}
+  {
+    if (origUid == 0)
+      {
+	if (setegid(p->pw_gid) != 0)
+	  throw runtime_error{"setegid() failed"s};
+	if (seteuid(p->pw_uid) != 0)
+	  {
+	    setegid(origGid);//Should be RAII but it's probably useless if we got here
+	    throw runtime_error{"seteuid() failed"s};
+	  }
+	dropped = true;
+      }
+
+  }
+  privDropper::~privDropper()
+  {
+    if (dropped)
+      {
+	if (seteuid(origUid) != 0 || setegid(origGid) != 0)
+	  {
+	    pam_syslog(pamh, LOG_WARNING, "failed regaining privs, remaining pam modules in the stack might misbehave");
+	  }
+      }
+  }
+  
 }
