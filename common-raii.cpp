@@ -100,4 +100,11 @@ using namespace std;
       gpgme_release(ctx);
   }
   
+  encrypter::encrypter(string s, string gpghome):plain{s},gpgHome{gpghome}{}
+
+  string encrypter::ciphertext(string recp, bool trust = false, bool sign = true, string sender = "")
+  {
+    return encPub(recp, trust, sign, sender);
+  }
+  
 }

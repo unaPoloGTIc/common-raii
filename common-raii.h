@@ -189,14 +189,8 @@ public:
   /*
     RAII wrapper around a gpgme engine
   */
-
-  encrypter(string s, string gpghome):plain{s},gpgHome{gpghome}
-  {}
-
-  string ciphertext(string recp, bool trust = false, bool sign = true, string sender = "")
-  {
-    return encPub(recp, trust, sign, sender);
-  }
+  encrypter(string, string);
+  string ciphertext(string, bool, bool, string);
 };
 
 /*
