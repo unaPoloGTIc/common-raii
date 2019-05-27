@@ -72,4 +72,32 @@ using namespace std;
     if(data)
       gpgme_data_release (data);
   }
+
+  gpgme_ctx_raii::gpgme_ctx_raii(string gpgHome)
+  {
+    gpgme_check_version (NULL);
+    if (auto err{gpgme_engine_check_version(proto)}; err != GPG_ERR_NO_ERROR)
+      throw runtime_error("Can't init libgpgme "s + string{gpgme_strerror(err)});
+
+    if (auto err{gpgme_new(&ctx)}; err != GPG_ERR_NO_ERROR)
+      throw runtime_error("Can't create libgpgme context "s + string{gpgme_strerror(err)});
+    if (auto err{gpgme_ctx_set_engine_info(ctx, proto, NULL, gpgHome.c_str())}; err != GPG_ERR_NO_ERROR)
+      throw runtime_error("Can't set libgpgme engine info "s +  string{gpgme_strerror(err)});
+    if (auto err{gpgme_set_protocol(ctx, proto)}; err != GPG_ERR_NO_ERROR)
+      throw runtime_error("Can't set libgpgme protocol "s + string{gpgme_strerror(err)});
+
+    gpgme_set_armor (ctx, 1);
+  }
+
+  gpgme_ctx_t& gpgme_ctx_raii::get()
+  {
+    return ctx;
+  }
+
+  gpgme_ctx_raii::~gpgme_ctx_raii()
+  {
+    if(ctx)
+      gpgme_release(ctx);
+  }
+  
 }

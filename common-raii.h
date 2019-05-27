@@ -102,7 +102,7 @@ private:
   gpgme_data_t data = nullptr;
   gpgme_error_t err;
 public:
-  gpgme_data_raii(const string& );
+  gpgme_data_raii(const string&);
   gpgme_data_raii();
   gpgme_data_t& get();
   ~gpgme_data_raii();
@@ -116,32 +116,9 @@ private:
   gpgme_ctx_t ctx;
   static const gpgme_protocol_t proto{GPGME_PROTOCOL_OpenPGP};
 public:
-  gpgme_ctx_raii(string gpgHome)
-  {
-    gpgme_check_version (NULL);
-    if (auto err{gpgme_engine_check_version(proto)}; err != GPG_ERR_NO_ERROR)
-      throw runtime_error("Can't init libgpgme "s + string{gpgme_strerror(err)});
-
-    if (auto err{gpgme_new(&ctx)}; err != GPG_ERR_NO_ERROR)
-      throw runtime_error("Can't create libgpgme context "s + string{gpgme_strerror(err)});
-    if (auto err{gpgme_ctx_set_engine_info(ctx, proto, NULL, gpgHome.c_str())}; err != GPG_ERR_NO_ERROR)
-      throw runtime_error("Can't set libgpgme engine info "s +  string{gpgme_strerror(err)});
-    if (auto err{gpgme_set_protocol(ctx, proto)}; err != GPG_ERR_NO_ERROR)
-      throw runtime_error("Can't set libgpgme protocol "s + string{gpgme_strerror(err)});
-
-    gpgme_set_armor (ctx, 1);
-  }
-
-  gpgme_ctx_t& get()
-  {
-    return ctx;
-  }
-
-  ~gpgme_ctx_raii()
-  {
-    if(ctx)
-      gpgme_release(ctx);
-  }
+  gpgme_ctx_raii(string);
+  gpgme_ctx_t& get();
+  ~gpgme_ctx_raii();
 };
 
  string getNonce(int);
