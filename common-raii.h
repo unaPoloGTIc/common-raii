@@ -131,7 +131,7 @@ private:
   /*
     RAII helper to encrypt ro the public key of *recp*, optionally signing as *sender*
   */
-  encPub(string, bool, bool, string);
+  string encPub(string, bool, bool, string);
 public:
   /*
     RAII wrapper around a gpgme engine
