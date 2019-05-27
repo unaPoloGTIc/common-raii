@@ -341,4 +341,4 @@ public:
   }
 };
 }
-#endif
+#endif //CMMNRAII_H
