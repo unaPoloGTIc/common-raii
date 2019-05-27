@@ -160,7 +160,7 @@ private:
 public:
   mhdRespRaii(string page);
   ~mhdRespRaii();
-  auto get();
+  struct MHD_Response *get();
 };
 }
 #endif //CMMNRAII_H

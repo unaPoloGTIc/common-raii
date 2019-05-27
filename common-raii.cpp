@@ -196,7 +196,7 @@ using namespace std;
     if (response)
       MHD_destroy_response (response);
   }
-  auto mhdRespRaii::get()
+  struct MHD_Response *mhdRespRaii::get()
   {
     return response;
   }
