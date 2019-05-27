@@ -102,26 +102,10 @@ private:
   gpgme_data_t data = nullptr;
   gpgme_error_t err;
 public:
-  gpgme_data_raii(const string& str)
-  {
-    if (auto err{gpgme_data_new_from_mem(&data,str.c_str(), str.length(), 1)}; err != GPG_ERR_NO_ERROR)
-      throw runtime_error("Can't init gpgme data from mem "s + string{gpgme_strerror(err)});
-  }
-  gpgme_data_raii()
-  {
-    if (auto err{gpgme_data_new(&data)}; err != GPG_ERR_NO_ERROR)
-      throw runtime_error("Can't init gpgme empty data "s + string{gpgme_strerror(err)});
-  }
-
-  gpgme_data_t& get()
-  {
-    return data;
-  }
-
-  ~gpgme_data_raii(){
-    if(data)
-      gpgme_data_release (data);
-  }
+  gpgme_data_raii(const string& );
+  gpgme_data_raii();
+  gpgme_data_t& get();
+  ~gpgme_data_raii();
 };
 
 /*
