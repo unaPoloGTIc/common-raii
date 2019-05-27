@@ -39,96 +39,96 @@ extern "C" {
 
 namespace commonRaii {
 
-using namespace std;
+  using namespace std;
  
 #define DEFAULT_USER "nobody"
 
-/*
-  RAII wrapper around PAM's conversation convention.
-  Presents *in* to the user and returns the reply that was supplied.
-*/
- string converse(pam_handle_t *, string in);
+  /*
+    RAII wrapper around PAM's conversation convention.
+    Presents *in* to the user and returns the reply that was supplied.
+  */
+  string converse(pam_handle_t *, string in);
  
-/*
-  RAII class to release gpgme keys when leaving scope.
-*/
-class keyRaii{
-private:
-  gpgme_key_t key;
+  /*
+    RAII class to release gpgme keys when leaving scope.
+  */
+  class keyRaii{
+  private:
+    gpgme_key_t key;
 
-public:
-  keyRaii();
-  ~keyRaii();
-  gpgme_key_t &get();  
-};
+  public:
+    keyRaii();
+    ~keyRaii();
+    gpgme_key_t &get();  
+  };
 
-/*
-  RAII class to release gpgme data when leaving scope.
-*/
-class gpgme_data_raii{
-private:
-  gpgme_data_t data = nullptr;
-  gpgme_error_t err;
-public:
-  gpgme_data_raii(const string&);
-  gpgme_data_raii();
-  gpgme_data_t& get();
-  ~gpgme_data_raii();
-};
+  /*
+    RAII class to release gpgme data when leaving scope.
+  */
+  class gpgme_data_raii{
+  private:
+    gpgme_data_t data = nullptr;
+    gpgme_error_t err;
+  public:
+    gpgme_data_raii(const string&);
+    gpgme_data_raii();
+    gpgme_data_t& get();
+    ~gpgme_data_raii();
+  };
 
-/*
-  RAII class to release gpgme ctx when leaving scope.
-*/
-class gpgme_ctx_raii{
-private:
-  gpgme_ctx_t ctx;
-  static const gpgme_protocol_t proto{GPGME_PROTOCOL_OpenPGP};
-public:
-  gpgme_ctx_raii(string);
-  gpgme_ctx_t& get();
-  ~gpgme_ctx_raii();
-};
+  /*
+    RAII class to release gpgme ctx when leaving scope.
+  */
+  class gpgme_ctx_raii{
+  private:
+    gpgme_ctx_t ctx;
+    static const gpgme_protocol_t proto{GPGME_PROTOCOL_OpenPGP};
+  public:
+    gpgme_ctx_raii(string);
+    gpgme_ctx_t& get();
+    ~gpgme_ctx_raii();
+  };
 
- string getNonce(int);
+  string getNonce(int);
    
-class encrypter {
-private:
-  string plain, gpgHome;
-  gpgme_decrypt_flags_t flags = static_cast<gpgme_decrypt_flags_t>(0);
+  class encrypter {
+  private:
+    string plain, gpgHome;
+    gpgme_decrypt_flags_t flags = static_cast<gpgme_decrypt_flags_t>(0);
+
+    /*
+      RAII helper to encrypt ro the public key of *recp*, optionally signing as *sender*
+    */
+    string encPub(string, bool, bool, string);
+  public:
+    /*
+      RAII wrapper around a gpgme engine
+    */
+    encrypter(string, string);
+    string ciphertext(string, bool, bool, string);
+  };
 
   /*
-    RAII helper to encrypt ro the public key of *recp*, optionally signing as *sender*
+    RAII class to temporarilly drop privilleges using setegid,seteuid
   */
-  string encPub(string, bool, bool, string);
-public:
-  /*
-    RAII wrapper around a gpgme engine
-  */
-  encrypter(string, string);
-  string ciphertext(string, bool, bool, string);
-};
-
-/*
-  RAII class to temporarilly drop privilleges using setegid,seteuid
-*/
-class privDropper{
-private:
-  uid_t origUid;
-  gid_t origGid;
-  bool dropped;
-  pam_handle_t *pamh;
-public:
-  privDropper(pam_handle_t *, struct passwd *);
-  ~privDropper();
-}; 
+  class privDropper{
+  private:
+    uid_t origUid;
+    gid_t origGid;
+    bool dropped;
+    pam_handle_t *pamh;
+  public:
+    privDropper(pam_handle_t *, struct passwd *);
+    ~privDropper();
+  }; 
  
- class mhdRespRaii {
-private:
-  struct MHD_Response *response;
-public:
-  mhdRespRaii(string page);
-  ~mhdRespRaii();
-  struct MHD_Response *get();
-};
+  class mhdRespRaii {
+  private:
+    struct MHD_Response *response;
+  public:
+    mhdRespRaii(string page);
+    ~mhdRespRaii();
+    struct MHD_Response *get();
+  };
 }
 #endif //CMMNRAII_H
