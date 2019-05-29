@@ -97,7 +97,7 @@ namespace commonRaii { //TODO: add valgrind tests for all raii classes
     gpgme_decrypt_flags_t flags = static_cast<gpgme_decrypt_flags_t>(0);
 
     /*
-      RAII helper to encrypt ro the public key of *recp*, optionally signing as *sender*
+      RAII helper to encrypt to the public key of *recp*, optionally signing as *sender*
     */
     string encPub(string, bool, bool, string);
   public:
