@@ -99,13 +99,13 @@ namespace commonRaii { //TODO: add valgrind tests for all raii classes
     /*
       RAII helper to encrypt to the public key of *recp*, optionally signing as *sender*
     */
-    string encPub(string, bool, bool, string);
+    string encPub(string recp, bool trust = false, bool sign = true, string sender = ""s);
   public:
     /*
       RAII wrapper around a gpgme engine
     */
     encrypter(string, string);
-    string ciphertext(string, bool, bool, string);
+    string ciphertext(string recp, bool trust = false, bool sign = true, string sender = "");
   };
 
   /*

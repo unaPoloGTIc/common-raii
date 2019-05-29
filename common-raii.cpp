@@ -134,12 +134,12 @@ namespace commonRaii {
   
   encrypter::encrypter(string s, string gpghome):plain{s},gpgHome{gpghome}{}
 
-  string encrypter::ciphertext(string recp, bool trust = false, bool sign = true, string sender = "")
+  string encrypter::ciphertext(string recp, bool trust, bool sign, string sender)
   {
     return encPub(recp, trust, sign, sender);
   }
 
-  string  encrypter::encPub(string recp, bool trust = false, bool sign = true, string sender = ""s)
+  string  encrypter::encPub(string recp, bool trust, bool sign, string sender)
   {
     gpgme_ctx_raii ctx(gpgHome);
     gpgme_data_raii in{plain};
