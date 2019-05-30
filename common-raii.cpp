@@ -40,7 +40,7 @@ namespace commonRaii {
 		if (conv->conv(marr.size(), marr.data(), &rr, conv->appdata_ptr) != PAM_SUCCESS)
 		  throw runtime_error("App callback failed"s);
 
-		if (rr != nullptr && rr->resp != nullptr)
+		if (rr && rr->resp)
 		  {
 		    unique_ptr<char[],void (*)(void*)> uniqResp(rr->resp, free);
 		    string stealResp{uniqResp.get()};
