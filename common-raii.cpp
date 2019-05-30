@@ -195,7 +195,7 @@ namespace commonRaii {
   {
     if (origUid == 0)
       {
-	if (setegid(p->pw_gid) != 0)
+	if (setegid(p->pw_gid) != 0)//setfsgid() isn't portable
 	  throw runtime_error{"setegid() failed"s};
 	if (seteuid(p->pw_uid) != 0)
 	  {
