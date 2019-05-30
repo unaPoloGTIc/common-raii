@@ -42,7 +42,7 @@ namespace commonRaii {
 
 		if (rr != nullptr && rr->resp != nullptr)
 		  {
-		    unique_ptr<char[]> uniqResp(rr->resp);
+		    unique_ptr<char[],void (*)(void*)> uniqResp(rr->resp, free);
 		    string stealResp{uniqResp.get()};
 		    return string{stealResp};
 		  }
