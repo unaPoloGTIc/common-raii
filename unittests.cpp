@@ -137,9 +137,11 @@ TEST(unitTests, encrypter_operate)
   ASSERT_EQ(tmp.find("-----BEGIN PGP MESSAGE-----"s),0);
   ASSERT_NE(tmp.find("-----END PGP MESSAGE-----"s),string::npos);
 }
+
 /*
-  TODO: test usage of:
-  converse() - see that it calls callback, sends string, gets result
+  Currently untested:
+  converse(): need a pam module to call into, knwon to work in a real module
+  privDropper: need to run a test as root to see it working
  */
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
