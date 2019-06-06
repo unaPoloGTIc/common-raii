@@ -99,7 +99,7 @@ namespace commonRaii { //TODO: add valgrind tests for all raii classes
     /*
       RAII helper to encrypt to the public key of *recp*, optionally signing as *sender*
     */
-    string encPub(string recp, bool trust = false, bool sign = true, string sender = ""s);
+    string encPub(string recp, bool trust = false, bool sign = true, string sender = "");
   public:
     /*
       RAII wrapper around a gpgme engine

@@ -38,7 +38,7 @@ namespace commonRaii {
 		array<const struct pam_message*, 1> marr{&m};
 
 		if (conv->conv(marr.size(), marr.data(), &rr, conv->appdata_ptr) != PAM_SUCCESS)
-		  throw runtime_error("App callback failed"s);
+		  throw runtime_error("App callback failed");
 
 		if (rr != nullptr && rr->resp != nullptr)
 		  {
@@ -46,7 +46,7 @@ namespace commonRaii {
 		    string stealResp{uniqResp.get()};
 		    return string{stealResp};
 		  }
-		throw runtime_error("Empty response"s);
+		throw runtime_error("Empty response");
 	      }
 	  }
 	catch(...)
@@ -54,7 +54,7 @@ namespace commonRaii {
 	    throw;
 	  }
       }
-    throw runtime_error("pam_get_item() failed"s);
+    throw runtime_error("pam_get_item() failed");
   }
   
   keyRaii::keyRaii():key{nullptr}{}
@@ -71,8 +71,8 @@ namespace commonRaii {
 
   string getNonce(int len = 10)
   {
-    static string chars{"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"s};
-    auto ret{""s};
+    static string chars{"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"};
+    string ret{""};
     random_device rd{};
     mt19937 g{rd()};
     uniform_int_distribution<> d(0, chars.size()-1);
@@ -86,13 +86,15 @@ namespace commonRaii {
   
   gpgme_data_raii::gpgme_data_raii(const string& str)
   {
-    if (auto err{gpgme_data_new_from_mem(&data,str.c_str(), str.length(), 1)}; err != GPG_ERR_NO_ERROR)
-      throw runtime_error("Can't init gpgme data from mem "s + string{gpgme_strerror(err)});
+    auto err{gpgme_data_new_from_mem(&data,str.c_str(), str.length(), 1)};
+    if ( err != GPG_ERR_NO_ERROR)
+      throw runtime_error("Can't init gpgme data from mem " + string{gpgme_strerror(err)});
   }
   gpgme_data_raii::gpgme_data_raii()
   {
-    if (auto err{gpgme_data_new(&data)}; err != GPG_ERR_NO_ERROR)
-      throw runtime_error("Can't init gpgme empty data "s + string{gpgme_strerror(err)});
+    auto err{gpgme_data_new(&data)}; 
+    if (err != GPG_ERR_NO_ERROR)
+      throw runtime_error("Can't init gpgme empty data " + string{gpgme_strerror(err)});
   }
 
   gpgme_data_t& gpgme_data_raii::get()
@@ -108,15 +110,18 @@ namespace commonRaii {
   gpgme_ctx_raii::gpgme_ctx_raii(string gpgHome)
   {
     gpgme_check_version (NULL);
-    if (auto err{gpgme_engine_check_version(proto)}; err != GPG_ERR_NO_ERROR)
-      throw runtime_error("Can't init libgpgme "s + string{gpgme_strerror(err)});
-
-    if (auto err{gpgme_new(&ctx)}; err != GPG_ERR_NO_ERROR)
-      throw runtime_error("Can't create libgpgme context "s + string{gpgme_strerror(err)});
-    if (auto err{gpgme_ctx_set_engine_info(ctx, proto, NULL, gpgHome.c_str())}; err != GPG_ERR_NO_ERROR)
-      throw runtime_error("Can't set libgpgme engine info "s +  string{gpgme_strerror(err)});
-    if (auto err{gpgme_set_protocol(ctx, proto)}; err != GPG_ERR_NO_ERROR)
-      throw runtime_error("Can't set libgpgme protocol "s + string{gpgme_strerror(err)});
+    auto err{gpgme_engine_check_version(proto)};
+    if ( err != GPG_ERR_NO_ERROR)
+      throw runtime_error("Can't init libgpgme " + string{gpgme_strerror(err)});
+    err = gpgme_new(&ctx);
+    if ( err != GPG_ERR_NO_ERROR)
+      throw runtime_error("Can't create libgpgme context " + string{gpgme_strerror(err)});
+    err = gpgme_ctx_set_engine_info(ctx, proto, NULL, gpgHome.c_str());
+    if ( err != GPG_ERR_NO_ERROR)
+      throw runtime_error("Can't set libgpgme engine info " +  string{gpgme_strerror(err)});
+    err = gpgme_set_protocol(ctx, proto);
+    if ( err != GPG_ERR_NO_ERROR)
+      throw runtime_error("Can't set libgpgme protocol " + string{gpgme_strerror(err)});
 
     gpgme_set_armor (ctx, 1);
   }
@@ -145,38 +150,44 @@ namespace commonRaii {
     gpgme_data_raii in{plain};
     gpgme_data_raii out{};
 
-    string recpFormatted{"--\n "s + recp + " \n"s};
+    string recpFormatted{"--\n " + recp + " \n"};
     gpgme_encrypt_flags_t params{trust?GPGME_ENCRYPT_ALWAYS_TRUST:static_cast<gpgme_encrypt_flags_t>(0)};
     if (sign)
       {
-	if (auto err{gpgme_op_keylist_start (ctx.get(), sender.c_str(), 0)}; err != GPG_ERR_NO_ERROR)
-	  throw runtime_error("gpgme_op_keylist_start() failed"s + string{gpgme_strerror(err)});
+	auto err{gpgme_op_keylist_start (ctx.get(), sender.c_str(), 0)};
+	if ( err != GPG_ERR_NO_ERROR)
+	  throw runtime_error("gpgme_op_keylist_start() failed" + string{gpgme_strerror(err)});
 	keyRaii key;
-	if (auto err{gpgme_op_keylist_next (ctx.get(), &key.get())}; err != GPG_ERR_NO_ERROR)
-	  throw runtime_error("gpgme_op_keylist_next() failed "s + string{gpgme_strerror(err)});
-	if (auto err{gpgme_op_keylist_end(ctx.get())}; err != GPG_ERR_NO_ERROR)
-	  throw runtime_error("gpgme_op_keylist_end() failed "s + string{gpgme_strerror(err)});
-	if (auto err{gpgme_signers_add (ctx.get(), key.get())}; err != GPG_ERR_NO_ERROR)
-	  throw runtime_error("Can't add signer "s + sender + " " + string{gpgme_strerror(err)});
-	if (auto err{gpgme_op_encrypt_sign_ext(ctx.get(),
-					       NULL,
-					       recpFormatted.c_str(),
-					       params,
-					       in.get(),
-					       out.get())}; err != GPG_ERR_NO_ERROR)
+	err = gpgme_op_keylist_next (ctx.get(), &key.get()); 
+	if (err != GPG_ERR_NO_ERROR)
+	  throw runtime_error("gpgme_op_keylist_next() failed " + string{gpgme_strerror(err)});
+	err = gpgme_op_keylist_end(ctx.get());
+	if ( err != GPG_ERR_NO_ERROR)
+	  throw runtime_error("gpgme_op_keylist_end() failed " + string{gpgme_strerror(err)});
+	err = gpgme_signers_add (ctx.get(), key.get());
+	if ( err != GPG_ERR_NO_ERROR)
+	  throw runtime_error("Can't add signer " + sender + " " + string{gpgme_strerror(err)});
+	err = gpgme_op_encrypt_sign_ext(ctx.get(),
+					   NULL,
+					   recpFormatted.c_str(),
+					   params,
+					   in.get(),
+					   out.get());
+	if ( err != GPG_ERR_NO_ERROR)
 	  {
-	    throw runtime_error("Can't encrypt/sign with keys "s + recp + ", " + sender + " : " + string{gpgme_strerror(err)});
+	    throw runtime_error("Can't encrypt/sign with keys " + recp + ", " + sender + " : " + string{gpgme_strerror(err)});
 	  }
       }
     else
       {
-	if (auto err{gpgme_op_encrypt_ext(ctx.get(),
-					  NULL,
-					  recpFormatted.c_str(),
-					  params,
-					  in.get(),
-					  out.get())}; err != GPG_ERR_NO_ERROR)
-	  throw runtime_error("Can't encrypt to "s + recp + " "s +  string{gpgme_strerror(err)});
+	auto err{gpgme_op_encrypt_ext(ctx.get(),
+				      NULL,
+				      recpFormatted.c_str(),
+				      params,
+				      in.get(),
+				      out.get())};
+	if ( err != GPG_ERR_NO_ERROR)
+	  throw runtime_error("Can't encrypt to " + recp + " " +  string{gpgme_strerror(err)});
       }
 
     constexpr int buffsize{500};
@@ -196,11 +207,11 @@ namespace commonRaii {
     if (origUid == 0)
       {
 	if (setegid(p->pw_gid) != 0)//setfsgid() isn't portable
-	  throw runtime_error{"setegid() failed"s};
+	  throw runtime_error{"etegid() failed"};
 	if (seteuid(p->pw_uid) != 0)
 	  {
 	    setegid(origGid);//Should be RAII but it's probably useless if we got here
-	    throw runtime_error{"seteuid() failed"s};
+	    throw runtime_error{"eteuid() failed"};
 	  }
 	dropped = true;
       }

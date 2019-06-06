@@ -1,10 +1,10 @@
 all:  commons runtests
 
 commons:
-	g++ -g -std=c++17 -fPIC -c common-raii.cpp -Wl,--no-undefined
+	g++ -g -std=c++11 -fPIC -c common-raii.cpp -Wl,--no-undefined -static
 
 unittests: commons
-	g++ -g unittests.cpp -o unittests common-raii.o -std=c++17 -Wl,--no-undefined -lgtest -lgmock -lpthread -lpam -lmicrohttpd `gpgme-config --cflags --libs` `curl-config --libs`
+	g++ -g unittests.cpp -o unittests common-raii.o -std=c++11 -Wl,--no-undefined -lgtest -lgmock -lpthread -lpam -lmicrohttpd `gpgme-config --cflags --libs` `curl-config --libs`
 
 run-unit-tests: unittests
 	./unittests

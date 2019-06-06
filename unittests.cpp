@@ -19,13 +19,13 @@ using namespace commonRaii;
 
 TEST(unitTests, gpgme_ctx_create)
 {
-  ASSERT_NO_THROW(gpgme_ctx_raii c{"~/.gnupg/"s};);
+  ASSERT_NO_THROW(gpgme_ctx_raii c{"~/.gnupg/"};);
 }
 
 TEST(unitTests, gpgme_ctx_operate)
 {
-  gpgme_ctx_raii c{"~/.gnupg/"s};
-  ASSERT_EQ(gpgme_op_keylist_start(c.get(), "some@sender.com", 0), GPG_ERR_NO_ERROR);
+  gpgme_ctx_raii c{"~/.gnupg/"};
+  ASSERT_EQ(gpgme_op_keylist_start(c.get(), "ome@sender.com", 0), GPG_ERR_NO_ERROR);
   ASSERT_EQ(gpgme_op_keylist_end(c.get()), GPG_ERR_NO_ERROR);
 }
 
@@ -41,12 +41,12 @@ TEST(unitTests, gpgme_data_create_empty)
 
 TEST(unitTests, gpgme_data_create_string)
 {
-  ASSERT_NO_THROW(gpgme_data_raii d{"some data to be copied"s};);
+  ASSERT_NO_THROW(gpgme_data_raii d{"ome data to be copied"};);
 }
 
 class Unit : public ::testing::Test {
 protected:
-  gpgme_ctx_raii c{"~/.gnupg/"s};
+  gpgme_ctx_raii c{"~/.gnupg/"};
   public:
   Unit(){}
   ~Unit(){}
@@ -63,7 +63,7 @@ TEST_F(Unit, keyRaii_operate)
 
 TEST_F(Unit, gpgme_data_operate)
 {
-  auto str{"some data to be encrypted"s};
+  auto str{"ome data to be encrypted"};
   gpgme_data_raii in{str};
   gpgme_data_raii out{};
 
@@ -82,8 +82,8 @@ TEST_F(Unit, gpgme_data_operate)
       buf[ret] = '\0';
       s += string{buf};
     }
-  ASSERT_EQ(s.find("-----BEGIN PGP MESSAGE-----"s),0);
-  ASSERT_NE(s.find("-----END PGP MESSAGE-----"s),string::npos);
+  ASSERT_EQ(s.find("-----BEGIN PGP MESSAGE-----"),0);
+  ASSERT_NE(s.find("-----END PGP MESSAGE-----"),string::npos);
 
   gpgme_data_raii cip{s};
   gpgme_data_raii dec{};
@@ -119,7 +119,7 @@ TEST(unitTests, getNonce_unique)
 
 TEST(unitTests, mhdRespRaii)
 {
-  auto tmp{"some response body"s};
+  auto tmp{"ome response body"};
   mhdRespRaii r{tmp};
 
   ASSERT_NE(nullptr, r.get());
@@ -127,15 +127,15 @@ TEST(unitTests, mhdRespRaii)
 
 TEST(unitTests, encrypter_create)
 {
-  ASSERT_NO_THROW(encrypter e("some plaintext"s, "~/.gnupg"s));
+  ASSERT_NO_THROW(encrypter e("ome plaintext", "~/.gnupg"));
 }
 
 TEST(unitTests, encrypter_operate)
 {
-  encrypter e("some plaintext"s, "~/.gnupg"s);
-  auto tmp{e.ciphertext("vendor@mmodt.com"s, false, false, ""s)};
-  ASSERT_EQ(tmp.find("-----BEGIN PGP MESSAGE-----"s),0);
-  ASSERT_NE(tmp.find("-----END PGP MESSAGE-----"s),string::npos);
+  encrypter e("ome plaintext", "~/.gnupg");
+  auto tmp{e.ciphertext("vendor@mmodt.com", false, false, "")};
+  ASSERT_EQ(tmp.find("-----BEGIN PGP MESSAGE-----"),0);
+  ASSERT_NE(tmp.find("-----END PGP MESSAGE-----"),string::npos);
 }
 
 /*
