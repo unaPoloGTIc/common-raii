@@ -13,9 +13,11 @@ extern "C" {
 }
 #include "common-raii.h"
 
-
 using namespace std;
 using namespace commonRaii;
+
+string validEmail{"vendor@mmodt.com"s};
+string invalidEmail{"some@sender.com"s};
 
 TEST(unitTests, gpgme_ctx_create)
 {
@@ -25,7 +27,7 @@ TEST(unitTests, gpgme_ctx_create)
 TEST(unitTests, gpgme_ctx_operate)
 {
   gpgme_ctx_raii c{"~/.gnupg/"s};
-  ASSERT_EQ(gpgme_op_keylist_start(c.get(), "some@sender.com", 0), GPG_ERR_NO_ERROR);
+  ASSERT_EQ(gpgme_op_keylist_start(c.get(), invalidEmail.c_str(), 0), GPG_ERR_NO_ERROR);
   ASSERT_EQ(gpgme_op_keylist_end(c.get()), GPG_ERR_NO_ERROR);
 }
 
@@ -55,7 +57,7 @@ protected:
 TEST_F(Unit, keyRaii_operate)
 {
   keyRaii k{};
-  ASSERT_EQ(gpgme_op_keylist_start(c.get(), "vendor@mmodt.com", 0), GPG_ERR_NO_ERROR);
+  ASSERT_EQ(gpgme_op_keylist_start(c.get(), validEmail.c_str(), 0), GPG_ERR_NO_ERROR);
   ASSERT_EQ(gpgme_op_keylist_next(c.get(), &k.get()), GPG_ERR_NO_ERROR);
   ASSERT_EQ(gpgme_op_keylist_end(c.get()), GPG_ERR_NO_ERROR);
   ASSERT_EQ(gpgme_signers_add(c.get(), k.get()), GPG_ERR_NO_ERROR);
@@ -69,7 +71,7 @@ TEST_F(Unit, gpgme_data_operate)
 
   ASSERT_EQ(gpgme_op_encrypt_ext(c.get(),
 				 NULL,
-				 "--\n vendor@mmodt.com \n",
+				 string{"--\n "s + validEmail + " \n"s}.c_str(),
 				 GPGME_ENCRYPT_ALWAYS_TRUST,
 				 in.get(),
 				 out.get()), GPG_ERR_NO_ERROR);
@@ -133,7 +135,7 @@ TEST(unitTests, encrypter_create)
 TEST(unitTests, encrypter_operate)
 {
   encrypter e("some plaintext"s, "~/.gnupg"s);
-  auto tmp{e.ciphertext("vendor@mmodt.com"s, false, false, ""s)};
+  auto tmp{e.ciphertext(validEmail, false, false, ""s)};
   ASSERT_EQ(tmp.find("-----BEGIN PGP MESSAGE-----"s),0);
   ASSERT_NE(tmp.find("-----END PGP MESSAGE-----"s),string::npos);
 }
