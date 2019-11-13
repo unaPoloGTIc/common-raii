@@ -105,11 +105,6 @@ gpgme_ctx_raii::gpgme_ctx_raii(const string gpgHome) {
   }
   shared_ptr<gpgme_context> tmpShr(tmpCtx, gpgme_release);
   ctx = tmpShr;
-  /*
-    ctx_releaser gpgme_release_wrapper{};
-    unique_ptr<gpgme_context, ctx_releaser> tmpUnq(tmpCtx,
-    gpgme_release_wrapper); ctx = move(tmpUnq);
-  */
 
   if (auto err{
           gpgme_ctx_set_engine_info(ctx.get(), proto, NULL, gpgHome.c_str())};
