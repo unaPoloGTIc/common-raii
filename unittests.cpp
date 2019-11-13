@@ -23,11 +23,61 @@ TEST(unitTests, gpgme_ctx_create) {
   ASSERT_NO_THROW(gpgme_ctx_raii c{"~/.gnupg/"s};);
 }
 
-TEST(unitTests, gpgme_ctx_operate) {
-  gpgme_ctx_raii c{"~/.gnupg/"s};
+auto ctx_keylist_start_end = [](gpgme_ctx_raii &c) {
   ASSERT_EQ(gpgme_op_keylist_start(c.get(), invalidEmail.c_str(), 0),
             GPG_ERR_NO_ERROR);
   ASSERT_EQ(gpgme_op_keylist_end(c.get()), GPG_ERR_NO_ERROR);
+};
+
+TEST(unitTests, gpgme_ctx_operate) {
+  gpgme_ctx_raii c{"~/.gnupg/"s};
+  ctx_keylist_start_end(c);
+}
+
+TEST(unitTests, gpgme_ctx_copy_ctor_inner) {
+  gpgme_ctx_raii c1{"~/.gnupg/"s};
+  {
+    gpgme_ctx_raii c2{c1};
+    ctx_keylist_start_end(c2);
+  }
+}
+
+TEST(unitTests, gpgme_ctx_copy_ctor_outer) {
+  gpgme_ctx_raii c1{"~/.gnupg/"s};
+  { gpgme_ctx_raii c2{c1}; }
+  ctx_keylist_start_end(c1);
+}
+
+TEST(unitTests, gpgme_ctx_copy_ctor) {
+  gpgme_ctx_raii c1{"~/.gnupg/"s};
+  {
+    gpgme_ctx_raii c2{c1};
+    ctx_keylist_start_end(c2);
+  }
+  ctx_keylist_start_end(c1);
+}
+
+TEST(unitTests, gpgme_ctx_copy_assign) {
+  gpgme_ctx_raii c1{"~/.gnupg/"s};
+  {
+    gpgme_ctx_raii c2 = c1;
+    ctx_keylist_start_end(c2);
+  }
+  ctx_keylist_start_end(c1);
+}
+
+void take_ctx(gpgme_ctx_raii c) { ctx_keylist_start_end(c); }
+gpgme_ctx_raii ret_ctx(gpgme_ctx_raii c) { return c; }
+
+TEST(unitTests, gpgme_ctx_pass_to_func) {
+  gpgme_ctx_raii c{"~/.gnupg/"s};
+  take_ctx(c);
+}
+
+TEST(unitTests, gpgme_ctx_get_from_func) {
+  gpgme_ctx_raii c1{"~/.gnupg/"s};
+  auto c2{ret_ctx(c1)};
+  ctx_keylist_start_end(c2);
 }
 
 TEST(unitTests, keyRaii_create) { ASSERT_NO_THROW(keyRaii k{};); }

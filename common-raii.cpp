@@ -93,31 +93,39 @@ gpgme_data_raii::~gpgme_data_raii() {
     gpgme_data_release(data);
 }
 
-gpgme_ctx_raii::gpgme_ctx_raii(string gpgHome) {
+gpgme_ctx_raii::gpgme_ctx_raii(const string gpgHome) {
   gpgme_check_version(NULL);
   if (auto err{gpgme_engine_check_version(proto)}; err != GPG_ERR_NO_ERROR)
     throw runtime_error("Can't init libgpgme "s + string{gpgme_strerror(err)});
 
-  if (auto err{gpgme_new(&ctx)}; err != GPG_ERR_NO_ERROR)
+  gpgme_ctx_t tmpCtx;
+  if (auto err{gpgme_new(&tmpCtx)}; err != GPG_ERR_NO_ERROR) {
     throw runtime_error("Can't create libgpgme context "s +
                         string{gpgme_strerror(err)});
-  if (auto err{gpgme_ctx_set_engine_info(ctx, proto, NULL, gpgHome.c_str())};
+  }
+  shared_ptr<gpgme_context> tmpShr(tmpCtx, gpgme_release);
+  ctx = tmpShr;
+  /*
+    ctx_releaser gpgme_release_wrapper{};
+    unique_ptr<gpgme_context, ctx_releaser> tmpUnq(tmpCtx,
+    gpgme_release_wrapper); ctx = move(tmpUnq);
+  */
+
+  if (auto err{
+          gpgme_ctx_set_engine_info(ctx.get(), proto, NULL, gpgHome.c_str())};
       err != GPG_ERR_NO_ERROR)
     throw runtime_error("Can't set libgpgme engine info "s +
                         string{gpgme_strerror(err)});
-  if (auto err{gpgme_set_protocol(ctx, proto)}; err != GPG_ERR_NO_ERROR)
+  if (auto err{gpgme_set_protocol(ctx.get(), proto)}; err != GPG_ERR_NO_ERROR)
     throw runtime_error("Can't set libgpgme protocol "s +
                         string{gpgme_strerror(err)});
 
-  gpgme_set_armor(ctx, 1);
+  gpgme_set_armor(ctx.get(), 1);
 }
 
-gpgme_ctx_t &gpgme_ctx_raii::get() { return ctx; }
+gpgme_ctx_t gpgme_ctx_raii::get() { return ctx.get(); }
 
-gpgme_ctx_raii::~gpgme_ctx_raii() {
-  if (ctx)
-    gpgme_release(ctx);
-}
+gpgme_ctx_raii::~gpgme_ctx_raii() = default;
 
 encrypter::encrypter(string s, string gpghome) : plain{s}, gpgHome{gpghome} {}
 

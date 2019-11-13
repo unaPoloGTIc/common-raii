@@ -82,12 +82,30 @@ public:
 */
 class gpgme_ctx_raii {
 private:
-  gpgme_ctx_t ctx;
+  /*
+  struct ctx_releaser { // deleter
+    ctx_releaser() {};
+    ctx_releaser(const ctx_releaser&) = default;
+    ctx_releaser(ctx_releaser&)= default;
+    ctx_releaser(ctx_releaser&&)= default;
+    ctx_releaser& operator=(const ctx_releaser&) = default;
+    void operator()(gpgme_context* p) const {
+      gpgme_release(p);
+    };
+};
+  */
+
+  // TODO: consider unique_ptr to help users avoid illegal gpgme usage
+  // (f1_start() before the previous f2_end() )
+  shared_ptr<gpgme_context>
+      ctx; // relies on gpgme_context being the same as gpgme_ctx_t
+  // unique_ptr<gpgme_context, ctx_releaser> ctx; //relies on gpgme_context
+  // being the same as gpgme_ctx_t
   static const gpgme_protocol_t proto{GPGME_PROTOCOL_OpenPGP};
 
 public:
   gpgme_ctx_raii(string);
-  gpgme_ctx_t &get();
+  gpgme_ctx_t get();
   ~gpgme_ctx_raii();
 };
 
